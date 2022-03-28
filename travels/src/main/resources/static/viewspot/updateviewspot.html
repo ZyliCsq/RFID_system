@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>堆场构件管理系统</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        form{
+            width:270px;
+        }
+        input{
+            width: 64%;
+            background: #eee;
+        }
+        input:focus{
+            background: #fff;
+        }
+        form{
+            padding: 0 12px 12px;
+        }
+        label{
+            display: block;
+            padding-bottom:12px;
+        }
+        .label-text{
+            width: 36%;
+            float: left;
+        }
+        #img-show{
+            width: 135px;
+            height: 135px;
+            display: block;
+            margin: 0 auto;
+            object-fit: cover;
+        }
+    </style>
+    
+</head>
+<body>
+<div id="app">
+    <div id="wrap">
+        <div id="header">
+            <div style="float: right;padding-top: 24px">(•́へ•́╬)(•́へ•́╬)</div>
+            <h1>堆场构件管理系统</h1>
+        </div>
+        <div id="header-bar"></div>
+        <div id="content" style="height: 400px">
+            <img src="../img/rfid3.png" style="float: right;height: 320px">
+            <h2>修改构件信息</h2>
+            <form action="viewspotlist.html" method="post">
+                
+                <label>
+                    <div class="label-text">构件名称：</div>
+                    <input type="text" v-model="place.name" name="name">
+                </label>
+                <label>
+                    <div class="label-text">构件简介：</div>
+                    <input type="text" v-model="place.cpjj" name="cpjj">
+                </label>
+               
+                <label>
+                    <div class="label-text">构件状态：</div>
+                    <select v-model="place.state_no" name="state_no">
+                        <option v-for="pro in provinces"  :value="pro.state_no" v-text="pro.state"></option>
+
+                    </select>
+                </label>
+                
+                <button type="button" @click="updataPlace" style="background-color: #467aa7;font-size: 20px; ">提 交</button>&emsp;
+                <a href="viewspotlist.html"><button type="button"  style="background-color: #467aa7;font-size: 20px; ">返回</button>&emsp;</a>
+            </form>
+        </div>
+        <div id="footer" style="font-size: 15px;text-decoration-color: #666666">
+            Power By springBoot @张雨林
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+
+
+<script src="../js/vue.js"></script>
+<script src="../js/axios.min.js"></script>
+<script>
+    const app = new Vue({
+        el:"#app",
+        data:{
+            rfid_no:"",
+            place:{},
+            provinces:[] ,
+          
+        },
+        methods:{
+
+            //修改景点信息
+            updataPlace(){
+            	axios.post("http://localhost:8989/place/update",this.place).then((res)=>{
+                    if(res.data.states){
+                        alert(res.data.mag+"点击确定跳转到构件列表页");
+                        location.href='./viewspotlist.html';
+                    } else{
+                        alert(res.data.mag);
+                     }
+                 });
+            },
+
+            //根据id查询景点信息
+            findOnePlace(){
+                _this = this;
+                axios.get("http://localhost:8989/place/findOne?rfid_no="+this.rfid_no).then((res)=>{
+                    _this.place=res.data;
+                    
+                })
+            },
+
+            //查询景点信息
+            findAllProvince(){
+                _this = this;
+                axios.get("http://localhost:8989/place/findAllState?").then((res)=>{
+                    console.log(res.data.provinces);
+                    _this.provinces=res.data.provinces;
+                });
+
+            }
+
+        },
+
+        created(){
+            let rfid_no = location.href.substring(location.href.indexOf("=")+1);
+            this.place.rfid_no = rfid_no;
+            
+            this.findAllProvince();
+        }
+    })
+
+</script>

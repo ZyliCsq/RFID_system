@@ -1,0 +1,64 @@
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.mypj.Dao.PlaceDao">
+
+    <!--根据省份id查询所有的景点信息并排序-->
+    <select id="findByrfid" resultType="place">
+        select
+         rfid_no,name,rfidtable.state_no,state,cpjj
+        from rfidtable,state
+        where rfidtable.state_no = state.state_no
+        limit #{start},#{rows}
+    </select>
+    
+    <select id="findStaterfid" resultType="place">
+        select
+         rfid_no,name,rfidtable.state_no,state,cpjj
+        from rfidtable,state
+        where rfidtable.state_no = state.state_no and rfidtable.state_no=#{state_no}
+        limit #{start},#{rows}
+    </select>
+
+    <!--根据省份id查询当前省份所有景点个数-->
+    <select id="findByCounts"  resultType="Integer">
+        select count(rfid_no) from rfidtable
+    </select>
+
+    <!--保存景点-->
+    <insert id="save" parameterType="Place" useGeneratedKeys="true" keyProperty="id">
+        insert into rfidtable values (#{rfid_no},#{name},#{state_no},'0000',#{cpjj})
+    </insert>
+
+
+    <select id="findOne" parameterType="String" resultType="Place">
+        select
+         rfid_no,name,rfidtable.state_no,state,cpjj
+        from rfidtable,state
+        where rfidtable.state_no = state.state_no and rfid_no=#{rfid_no}
+    </select>
+
+    <!--删除景点信息的方法-->
+    <delete id="deleterfid" parameterType="String">
+        delete from rfidtable where rfid_no=#{rfid_no}
+    </delete>
+
+    <!--修改景点信息-->
+    <update id="update" parameterType="Place" useGeneratedKeys="true" keyProperty="id">
+        update rfidtable
+        set
+            name=#{name},
+            state_no=#{state_no},
+            cpjj=#{cpjj}
+            
+        where rfid_no=#{rfid_no}
+    </update>
+    
+    <select id="findAllState" resultType="State">
+        select
+         *
+        from state
+    </select>
+
+</mapper>

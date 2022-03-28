@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>堆场构件管理系统</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        form{
+            width:270px;
+        }
+        input{
+            width: 64%;
+            background: #eee;
+        }
+        input:focus{
+            background: #fff;
+        }
+        form{
+            padding: 0 12px 12px;
+        }
+        label{
+            display: block;
+            padding-bottom:12px;
+        }
+        .label-text{
+            width: 36%;
+            float: left;
+        }
+        #upload-tip{
+            border: 1px dashed #d9d9d9;
+            width: 135px;
+            height: 135px;
+            line-height: 135px;
+            cursor: pointer;
+            font-size: 36px;
+            color:#d9d9d9;
+        }
+        #img-show{
+            width: 135px;
+            height: 135px;
+            display: block;
+            margin: 0 auto;
+            object-fit: cover;
+        }
+    </style>
+    <script>
+        function imgfileChange() {
+            var upload_tip = document.getElementById("upload-tip");
+            var img_show = document.getElementById("img-show");
+            var imgfile = document.getElementById("imgfile");
+
+            var freader = new FileReader();
+            freader.readAsDataURL(imgfile.files[0]);
+            freader.onload = function (e) {
+                img_show.src = e.target.result;
+                img_show.style.display = "inline";
+                upload_tip.style.display = "none";
+            };
+        }
+    </script>
+</head>
+<body>
+<div id="app">
+    <div id="wrap">
+        <div id="header">
+            <div style="float: right;padding-top: 24px">(•́へ•́╬)(•́へ•́╬)</div>
+            <h1>堆场构件管理系统</h1>
+        </div>
+        <div id="header-bar"></div>
+        <div id="content" style="height: 400px">
+            <img src="../img/rfid3.png" style="float: right;height: 320px">
+            <h2>添加新构件信息</h2>
+            <form action="viewspotlist.html" method="post">
+                <label>
+                    <div class="label-text">构件的id：</div>
+                    <input type="text" v-model="place.rfid_no" name="rfid_no">
+                </label>
+                <label>
+                    <div class="label-text">构件名称：</div>
+                    <input type="text" v-model="place.name" name="name">
+                </label>
+                <label>
+                    <div class="label-text">构件简介：</div>
+                    <input type="text" v-model="place.cpjj" name="cpjj">
+                </label>
+               
+                <label>
+                    <div class="label-text">构件状态：</div>
+                    <select v-model="place.state_no" name="state_no">
+                        <option v-for="pro in provinces"  :value="pro.state_no" v-text="pro.state"></option>
+
+                    </select>
+                </label>
+                <button type="button" @click="savePlaceInfo" style="background-color: #467aa7;font-size: 20px; ">提 交</button>&emsp;
+                <a href="viewspotlist.html"><button type="button"  style="background-color: #467aa7;font-size: 20px; ">返回</button>&emsp;</a>
+            </form>
+        </div>
+        <div id="footer">
+            made in yulinzhang
+        </div>
+    </div>
+</div>
+</body>
+</html>
+
+
+<script src="../js/vue.js"></script>
+<script src="../js/axios.min.js"></script>
+<script>
+    const app = new Vue({
+        el:"#app",
+        data:{
+
+            provinces:[],
+            place:{},
+            id:"",
+
+        },
+        methods:{
+
+            //保存景点信息的方法
+        	savePlaceInfo(){
+                axios.post("http://localhost:8989/place/save",this.place).then((res)=>{
+                   if(res.data.states){
+                       alert(res.data.mag+"点击确定跳转到构件列表页");
+                       location.href='./viewspotlist.html';
+                   } else{
+                       alert(res.data.mag);
+                    }
+                });
+            },
+            
+            
+
+            findAllProvince(){
+                _this = this;
+                axios.get("http://localhost:8989/place/findAllState?").then((res)=>{
+                    console.log(res.data.provinces);
+                    _this.provinces=res.data.provinces;
+                });
+
+            }
+
+
+
+        },
+
+        created(){
+
+            //查询所有省份信息
+            this.findAllProvince();
+            //获取省份id
+          
+        }
+    })
+
+</script>

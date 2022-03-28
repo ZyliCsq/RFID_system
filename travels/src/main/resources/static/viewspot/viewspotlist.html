@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <title>堆场构件管理系统</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <style>
+        table{
+            width: 100%;
+            margin-bottom: 15px;
+            border-collapse: collapse;
+            table-layout: fixed;
+        }
+        th,td{
+            border: 1px solid #CBD6DE;
+            padding-left: 10px;
+            line-height: 28px;
+        }
+        th{
+            text-align: left;
+            background: linear-gradient(#edf2f5,#dce9f2,#edf2f5);
+            color:#467aa7;
+        }
+        tbody tr:nth-child(4n),tbody tr:nth-child(4n-1){
+            background: #f2f2f2;
+        }
+        #pages{
+            text-align: center;
+            padding: 8px 0;
+        }
+        .page{
+            min-width: 50px;
+            display: inline-block;
+        }
+        .viewspotimg{
+            width: 135px;
+            height: 135px;
+            margin-left: -10px;
+            display: block;
+            object-fit: cover;
+        }
+    </style>
+</head>
+<body>
+<div id="app">
+<div id="wrap">
+     <div id="header">
+        <div style="float: right;padding-top: 16px">
+           (•́へ•́╬)(•́へ•́╬)
+        <a href="../login.html"><button type="button" style="background-color: #FAEBD7;font-size: 20px; ">安全退出</button></a>&emsp;
+        </div>
+        
+         <div style="float: right;padding-top: 16px">  
+             <a href="javascript:;"><button type="button" style="background-color: #FAEBD7;font-size: 20px; "@click="findStaterfid(placce.state_no)">查找</button></a>&emsp;
+         </div>
+        
+        
+        <div style="float: right;padding-top: 17px">
+           <select v-model="placce.state_no" name="state_no"  style="height: 31px;width:320px;float:left">
+                        <option v-for="pro in provinces"  :value="pro.state_no" v-text="pro.state"></option>
+           </select>
+        </div>
+       
+        
+        <h1>堆场构件管理系统&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;按状态查找：</h1>
+    </div>
+    <div id="content">
+      
+                   <h2>构件列表</h2>
+                  
+                    
+             
+        <table>
+            <thead>
+            <tr>
+                <th width="20%">构件ID</th>
+                <th width="15%">构件名称</th>
+                <th width="21%">构件状态</th>
+                <th width="26%">构件简介</th>
+                <th width="18%">操作</th>
+            </tr>
+            </thead>
+            <tbody v-for="place in palces">
+                 <tr>
+                    <td rowspan="2"><span v-text="place.rfid_no"/></td>
+                    <td rowspan="2"><span v-text="place.name"/></td>
+                    
+                    <td><span  v-text="place.state"/></td>
+                    <td><span v-text="place.cpjj"/></td>
+         
+                    <td style="text-align: center">
+                        <a href="javascript:;" @click="deleterfid(place.rfid_no)">   <button type="button"  >删除构件</button></a>
+                        <a href= "#" @click="geturl(place.rfid_no)">   <button type="button"  >修改构件</button></a>
+                        
+                        
+                    </td>
+                </tr>
+                
+            </tbody>
+        </table>
+        <a href="addviewspot.html"><button type="button" style="background-color: #467aa7;font-size: 20px; ">添加构件</button></a>&emsp;
+        <a href="../login.html"><button type="button" style="background-color: #467aa7;font-size: 20px; ">退出系统</button></a>&emsp;
+        <div id="pages">
+            <a href="javascript:;" v-if="page!=1" class="page" @click="findAllPage(page-1)">&lt;上一页</a>
+            <a href="javascript:;" v-if="page==1" class="page" >&lt;上一页</a>
+            <span  v-for="index in totalPage" >
+                 <a href="javascript:;" v-if="page==index"class="page" v-text="index"></a>
+                 <a href="javascript:;" v-if="page!=index" @click="findAllPage(index)"  class="page" v-text="index"></a>
+            </span>
+            <a href="javascript:;" class="page" v-if="page==totalPage" >下一页&gt;</a>
+            <a href="javascript:;" class="page" v-if="page!=totalPage" @click="findAllPage(page+1)">下一页&gt;</a>
+        </div>
+    </div>
+    <div id="footer" style="font-size: 15px;text-decoration-color: #666666">
+        Power By springBoot @张雨林
+    </div>
+</div>
+</div>
+</body>
+</html>
+
+<script src="../js/vue.js"></script>
+<script src="../js/axios.min.js"></script>
+<script>
+    const app = new Vue({
+        el:"#app",
+        data:{
+        	placce:{},
+            palces:[],
+            rfid_no:"",
+            totalPage:1,
+            page:1,
+            provinces:[],
+        },
+        methods:{
+
+            //封装查询所有的函数
+            findAllPage(index){
+                _this=this;
+                if(index){
+                    this.page=index;
+                }
+
+                axios.get("http://localhost:8989/place/findAllRfid?&page="+this.page).then((res)=>{
+                    _this.palces = res.data.places;
+                    _this.totalPage = res.data.totalPage;
+                    _this.page=res.data.page;
+                });
+            },
+            
+            findStaterfid(state_no){
+                _this=this;
+                
+
+                axios.get("http://localhost:8989/place/findStateRfid?state_no="+state_no).then((res)=>{
+                    _this.palces = res.data.places;
+                    _this.totalPage = res.data.totalPage;
+                    _this.page=res.data.page;
+                });
+            },
+           
+            
+            findIDrfid(rfid_no){
+                _this=this;
+                
+
+                axios.get("http://localhost:8989/place/findStateRfid?state_no="+state_no).then((res)=>{
+                    _this.palces = res.data.places;
+                    _this.totalPage = res.data.totalPage;
+                    _this.page=res.data.page;
+                });
+            },
+            
+            deleterfid(rfid_no){
+                console.log(rfid_no);
+                if(confirm("确定要删除构件吗？")){
+                    axios.get("http://localhost:8989/place/deleterfid?rfid_no="+rfid_no).then((res)=>{
+                    	
+                    	if(res.data.states){
+                    		alert(res.data.mag+"点击确定刷新构件列表");
+                            location.href='./viewspotlist.html';
+                        }else{
+                            alert(res.data.mag);
+                        }
+                    });
+                }
+            },
+            
+            
+            geturl(rfid_no){
+            	
+            	document.location.href = "updateviewspot.html?rfid_no="+rfid_no;
+            	
+            },
+            
+            
+            findAllProvince(){
+                _this = this;
+                axios.get("http://localhost:8989/place/findAllState?").then((res)=>{
+                    console.log(res.data.provinces);
+                    _this.provinces=res.data.provinces;
+                });
+
+            }
+            
+            
+            
+            
+
+        },
+        
+        
+        
+        
+        
+        
+        created(){
+           let id = location.href.substring(location.href.indexOf("=")+1);
+           this.id = id;
+           this.findAllPage();
+           this.findAllProvince();
+        }
+    })
+
+</script>
